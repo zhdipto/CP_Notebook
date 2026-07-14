@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Django
+*.sqlite3
+media/
+staticfiles/
+
+# Environment variables (real secrets — never commit this)
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Claude Code local settings (personal, not shared)
+.claude/settings.local.json
