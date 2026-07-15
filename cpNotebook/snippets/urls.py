@@ -1,7 +1,7 @@
-import django.urls as urls
-from . import views
+from rest_framework.routers import DefaultRouter
+from .views import CodeSnippetViewSet
 
-urlpatterns = [
-    urls.path('', views.CodeSnippetListView.as_view(), name='snippet-list'),
-    urls.path('<int:pk>/', views.CodeSnippetDetailView.as_view(), name='snippet-detail'),
-]
+router = DefaultRouter()
+router.register('snippets', CodeSnippetViewSet, basename='snippet')
+
+urlpatterns = router.urls
