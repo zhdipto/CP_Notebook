@@ -4,6 +4,7 @@ from .serializer import CodeSnippetSerializer
 from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Exists, OuterRef
 
 
 # Personal code bin: a snippet is only ever accessible to its owner. Read is
@@ -32,7 +33,19 @@ class CodeSnippetViewSet(viewsets.ModelViewSet):
         # The ONLY isolation boundary now: you can only ever see your own
         # snippets. `has_permission` guarantees an authenticated user here,
         # so there's no anonymous branch to handle.
-        return CodeSnippet.objects.select_related('owner').filter(owner=self.request.user)
+        #
+        # select_related('owner') folds the owner.username lookup into one JOIN;
+        # the Exists() annotation computes is_favorited as a SQL column so the
+        # serializer never fires a per-row query (kills the list N+1).
+        favorited = CodeSnippet.favorited_by.through.objects.filter(
+            codesnippet_id=OuterRef('pk'), user_id=self.request.user.pk
+        )
+        return (
+            CodeSnippet.objects
+            .select_related('owner')
+            .filter(owner=self.request.user)
+            .annotate(is_favorited_flag=Exists(favorited))
+        )
 
     @action(detail=True, methods=['post'])
     def favorite(self, request, pk=None):
