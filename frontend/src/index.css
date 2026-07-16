@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap');
+@import "tailwindcss";
+
+/* Manual dark toggle (a `.dark` class on <html>), not OS-driven. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Bauhaus design tokens (single source of truth) ---- */
+@theme {
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+
+  /* Pure primaries — identical in light and dark. */
+  --color-bh-red: #d02020;
+  --color-bh-blue: #1040c0;
+  --color-bh-yellow: #f0c020;
+}
+
+/* Semantic tokens that FLIP with the theme. `ink` drives every thick border
+   and hard shadow; on a dark canvas black would vanish, so it becomes
+   off-white. This is why borders/shadows are token-driven, not hard-coded. */
+:root {
+  --bh-bg: #f0f0f0;
+  --bh-fg: #121212;
+  --bh-ink: #121212;
+  --bh-surface: #ffffff;
+  --bh-muted: #e0e0e0;
+  --bh-dot: rgba(18, 18, 18, 0.09);
+}
+
+.dark {
+  --bh-bg: #121212;
+  --bh-fg: #f0f0f0;
+  --bh-ink: #f0f0f0;
+  --bh-surface: #1c1c1c;
+  --bh-muted: #2a2a2a;
+  --bh-dot: rgba(240, 240, 240, 0.09);
+}
+
+body {
+  background-color: var(--bh-bg);
+  color: var(--bh-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Reusable Bauhaus primitives ---- */
+@layer components {
+  .border-ink {
+    border-color: var(--bh-ink);
+  }
+  .bg-surface {
+    background-color: var(--bh-surface);
+  }
+  .bg-canvas {
+    background-color: var(--bh-bg);
+  }
+
+  /* Hard offset shadows — always the ink color so they survive dark mode. */
+  .shadow-hard-sm { box-shadow: 3px 3px 0 0 var(--bh-ink); }
+  .shadow-hard    { box-shadow: 4px 4px 0 0 var(--bh-ink); }
+  .shadow-hard-md { box-shadow: 6px 6px 0 0 var(--bh-ink); }
+  .shadow-hard-lg { box-shadow: 8px 8px 0 0 var(--bh-ink); }
+
+  /* Dot-grid background texture. */
+  .bh-dotgrid {
+    background-image: radial-gradient(var(--bh-dot) 2px, transparent 2px);
+    background-size: 20px 20px;
+  }
+
+  /* Card: white surface, thick ink border, large hard shadow, square corners. */
+  .bh-card {
+    background-color: var(--bh-surface);
+    border: 4px solid var(--bh-ink);
+    box-shadow: 8px 8px 0 0 var(--bh-ink);
+    border-radius: 0;
+  }
+
+  /* Label: uppercase, spaced, bold. */
+  .bh-label {
+    @apply mb-1 block text-xs font-bold uppercase tracking-widest;
+    color: var(--bh-fg);
+  }
+
+  /* Input: thick border, square, ink focus shadow (mechanical pop). */
+  .bh-input {
+    @apply w-full px-3 py-2.5 text-sm font-medium;
+    background-color: var(--bh-surface);
+    color: var(--bh-fg);
+    border: 2px solid var(--bh-ink);
+    border-radius: 0;
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out;
+  }
+  .bh-input:focus {
+    outline: none;
+    box-shadow: 4px 4px 0 0 var(--color-bh-blue);
+    transform: translate(-1px, -1px);
+  }
+  .bh-input::placeholder {
+    color: color-mix(in srgb, var(--bh-fg) 45%, transparent);
+  }
+
+  /* Button base: uppercase, bordered, hard shadow, physical press on active. */
+  .bh-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold uppercase tracking-wider;
+    border: 2px solid var(--bh-ink);
+    box-shadow: 4px 4px 0 0 var(--bh-ink);
+    border-radius: 0;
+    transition: transform 150ms ease-out, box-shadow 150ms ease-out, background-color 150ms ease-out;
+    cursor: pointer;
+  }
+  .bh-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+  }
+  .bh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .bh-btn-red    { background-color: var(--color-bh-red);    color: #fff; }
+  .bh-btn-blue   { background-color: var(--color-bh-blue);   color: #fff; }
+  .bh-btn-yellow { background-color: var(--color-bh-yellow); color: #121212; }
+  .bh-btn-outline {
+    background-color: var(--bh-surface);
+    color: var(--bh-fg);
+  }
+}
