@@ -6,4 +6,5 @@ urlpatterns = [
     path('token/', views.ThrottledTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', views.RegisterView.as_view(), name='register'),
+    path('me/', views.ProfileView.as_view(), name='profile'),
 ]

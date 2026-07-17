@@ -6,6 +6,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import SnippetList from './components/SnippetList';
 import SnippetForm from './components/SnippetForm';
+import Profile from './components/Profile';
 
 function RequireAuth({ children }) {
   const { status } = useAuth();
@@ -45,6 +46,14 @@ function AppRoutes() {
         element={
           <RequireAuth>
             <SnippetForm />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <RequireAuth>
+            <Profile />
           </RequireAuth>
         }
       />

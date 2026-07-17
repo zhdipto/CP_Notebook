@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Sun, Moon, LogOut, Plus } from 'lucide-react';
+import { Sun, Moon, LogOut, Plus, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -45,6 +45,10 @@ export default function Layout({ children }) {
                 <Link to="/snippets/new" className="bh-btn bh-btn-red">
                   <Plus className="h-4 w-4" strokeWidth={3} />
                   <span className="hidden sm:inline">New</span>
+                </Link>
+                <Link to="/profile" className="bh-btn bh-btn-outline" aria-label="Profile">
+                  <User className="h-4 w-4" strokeWidth={2.5} />
+                  <span className="hidden sm:inline">Profile</span>
                 </Link>
                 <button onClick={handleLogout} className="bh-btn bh-btn-outline" aria-label="Log out">
                   <LogOut className="h-4 w-4" strokeWidth={2.5} />
