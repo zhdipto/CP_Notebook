@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /snippets
+Disallow: /profile
+
+Sitemap: https://cpnotebook.example.com/sitemap.xml

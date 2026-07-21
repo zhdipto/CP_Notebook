@@ -7,6 +7,7 @@ import RegisterForm from './components/RegisterForm';
 import SnippetList from './components/SnippetList';
 import SnippetForm from './components/SnippetForm';
 import Profile from './components/Profile';
+import Landing from './components/Landing';
 
 function RequireAuth({ children }) {
   const { status } = useAuth();
@@ -20,9 +21,19 @@ function RequireAuth({ children }) {
   return children;
 }
 
+// Public landing page — but a logged-in user hitting "/" should land in
+// their notebook, not on marketing copy.
+function RootRoute() {
+  const { status } = useAuth();
+  if (status === 'checking') return null;
+  if (status === 'authenticated') return <Navigate to="/snippets" replace />;
+  return <Landing />;
+}
+
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<RootRoute />} />
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegisterForm />} />
       <Route

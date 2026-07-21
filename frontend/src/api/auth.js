@@ -13,8 +13,14 @@ export async function loginRequest(username, password) {
   return response.data; // { access, refresh }
 }
 
-export async function registerRequest(username, email, password) {
-  const response = await axios.post(`${BASE_URL}/auth/register/`, { username, email, password });
+export async function registerRequest(username, email, password, firstName, lastName) {
+  const response = await axios.post(`${BASE_URL}/auth/register/`, {
+    username,
+    email,
+    password,
+    first_name: firstName,
+    last_name: lastName,
+  });
   return response.data;
 }
 

@@ -5,6 +5,8 @@ import { registerRequest, loginRequest } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 
 export default function RegisterForm() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +20,7 @@ export default function RegisterForm() {
     setError(null);
     setLoading(true);
     try {
-      await registerRequest(username, email, password);
+      await registerRequest(username, email, password, firstName, lastName);
       // Registration returns no tokens (Phase 3), so log in right after.
       const tokens = await loginRequest(username, password);
       login(tokens.access, tokens.refresh);
@@ -51,6 +53,26 @@ export default function RegisterForm() {
             </p>
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="reg-first-name" className="bh-label">First name</label>
+                <input
+                  id="reg-first-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="bh-input"
+                />
+              </div>
+              <div>
+                <label htmlFor="reg-last-name" className="bh-label">Last name</label>
+                <input
+                  id="reg-last-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="bh-input"
+                />
+              </div>
+            </div>
             <div>
               <label htmlFor="reg-username" className="bh-label">Username</label>
               <input
