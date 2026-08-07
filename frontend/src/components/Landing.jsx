@@ -5,8 +5,8 @@ const FEATURES = [
   {
     icon: Lock,
     color: 'bg-bh-red',
-    title: 'Private by default',
-    body: 'Every snippet belongs to you alone — no public feed, no accidental sharing.',
+    title: 'No account needed',
+    body: 'No sign-up, no email, no password. Open it and start saving — your snippets stay on your browser.',
   },
   {
     icon: Search,
@@ -53,18 +53,20 @@ export default function Landing() {
         </h1>
         <p className="relative mt-6 max-w-xl text-lg font-medium leading-relaxed">
           CP Notebook is a private space to save, search, and star the code snippets you reuse
-          every day — signed in, always yours, never public.
+          every day. No account, no sign-up — it just opens.
         </p>
 
         <div className="relative mt-8 flex flex-wrap gap-4">
-          <Link to="/register" className="bh-btn bh-btn-red">
-            Get Started
+          <Link to="/snippets" className="bh-btn bh-btn-red">
+            Open Your Notebook
             <ArrowRight className="h-4 w-4" strokeWidth={3} />
           </Link>
-          <Link to="/login" className="bh-btn bh-btn-outline">
-            Log In
-          </Link>
         </div>
+
+        <p className="relative mt-4 max-w-xl text-xs font-bold uppercase tracking-widest opacity-60">
+          Heads up: snippets are tied to this browser. Clearing site data or switching
+          devices means starting fresh.
+        </p>
       </section>
 
       {/* Features */}
@@ -101,8 +103,8 @@ export default function Landing() {
         <h2 className="relative text-3xl font-black uppercase leading-tight tracking-tighter text-white sm:text-5xl">
           Start your notebook today
         </h2>
-        <Link to="/register" className="bh-btn bh-btn-yellow relative mt-6 inline-flex">
-          Create free account
+        <Link to="/snippets" className="bh-btn bh-btn-yellow relative mt-6 inline-flex">
+          Start writing — no sign-up
           <ArrowRight className="h-4 w-4" strokeWidth={3} />
         </Link>
       </section>

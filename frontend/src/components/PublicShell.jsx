@@ -20,8 +20,8 @@ export default function PublicShell({ children }) {
           </Link>
 
           <nav className="flex items-center gap-2 sm:gap-3">
-            <Link to="/login" className="bh-btn bh-btn-outline">Login</Link>
-            <Link to="/register" className="bh-btn bh-btn-blue">Register</Link>
+            {/* No login/register — the notebook just opens. */}
+            <Link to="/snippets" className="bh-btn bh-btn-blue">Open Notebook</Link>
             <button
               onClick={toggleTheme}
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}

@@ -1,23 +1,13 @@
-import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 import AppShell from './AppShell';
 import PublicShell from './PublicShell';
 
-// Picks the chrome for the whole app. Resolving `checking` here — instead of
-// per-route — means we never paint the public header and then swap it for the
-// dashboard once the silent refresh lands.
+// Picks the chrome for the whole app. This used to switch on auth status; with
+// no accounts there is nothing to wait for, so it switches on the route: the
+// notebook itself gets the sidebar shell, the marketing page does not.
 export default function Layout({ children }) {
-  const { status } = useAuth();
+  const { pathname } = useLocation();
+  const isNotebook = pathname.startsWith('/snippets');
 
-  if (status === 'checking') {
-    return (
-      <div className="bh-dotgrid flex h-dvh items-center justify-center bg-canvas">
-        <p className="border-2 border-ink bg-surface px-4 py-3 text-sm font-bold uppercase tracking-wide shadow-hard-sm">
-          Loading...
-        </p>
-      </div>
-    );
-  }
-
-  if (status === 'authenticated') return <AppShell>{children}</AppShell>;
-  return <PublicShell>{children}</PublicShell>;
+  return isNotebook ? <AppShell>{children}</AppShell> : <PublicShell>{children}</PublicShell>;
 }

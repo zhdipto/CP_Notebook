@@ -1,23 +1,26 @@
-
 from rest_framework import serializers
 from .models import CodeSnippet
 
+
 class CodeSnippetSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    is_favorited = serializers.SerializerMethodField()
+    # ModelSerializer maps TextField -> CharField, whose trim_whitespace
+    # defaults to True. For code that is destructive: it strips the leading
+    # indentation off the first line (paste an indented block and it shifts to
+    # column 0) and eats the trailing newline. Whitespace IS the content here.
+    # title/language keep the default trimming, which is what you want there.
+    code = serializers.CharField(trim_whitespace=False)
 
     class Meta:
         model = CodeSnippet
-        fields = ['id', 'title', 'code', 'language', 'created_at', 'updated_at', 'owner', 'is_favorited']
+        # device_id is deliberately absent: it is the bearer credential for the
+        # whole notebook, so it must be neither readable nor client-settable.
+        fields = ['id', 'title', 'code', 'language', 'created_at', 'updated_at', 'is_favorited']
+        # Toggled through the /favorite/ action, never by a direct write.
+        read_only_fields = ['is_favorited']
 
-    def get_is_favorited(self, obj):
-        # Fast path: list/retrieve annotate this via Exists() in get_queryset,
-        # so no per-row query fires. Fallback (e.g. the create response, which
-        # serializes a fresh un-annotated instance) does a single exists check.
-        annotated = getattr(obj, 'is_favorited_flag', None)
-        if annotated is not None:
-            return annotated
-        request = self.context.get('request')
-        if request is None or not request.user.is_authenticated:
-            return False
-        return obj.favorited_by.filter(pk=request.user.pk).exists()
+    def validate_code(self, value):
+        # trim_whitespace=False means a whitespace-only body would no longer be
+        # normalised to '' and rejected, so reject it explicitly instead.
+        if not value.strip():
+            raise serializers.ValidationError('Code cannot be empty.')
+        return value

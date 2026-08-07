@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Plus, Search, Star, LogOut, X } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Link, NavLink } from 'react-router-dom';
+import { Plus, Search, Star, X, HardDrive, TriangleAlert } from 'lucide-react';
 import { useSnippets, SORT_OPTIONS } from '../context/SnippetsContext';
 import { languageLabel } from '../constants/languages';
-import { getProfile } from '../api/profile';
+import { isDeviceIdPersistent } from '../api/device';
 import GeoLogo from './GeoLogo';
 
 function formatDate(iso) {
@@ -12,8 +11,6 @@ function formatDate(iso) {
 }
 
 function SidebarBody({ onNavigate }) {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
   const {
     items, count, hasNext, loading, loadingMore, error,
     search, setSearch,
@@ -22,18 +19,13 @@ function SidebarBody({ onNavigate }) {
     loadMore,
   } = useSnippets();
 
-  const [me, setMe] = useState(null);
-
-  // Mounted once for the whole session (this sits above <Routes>), so this is
-  // one request per login. Failure is cosmetic only.
+  // Checked once on mount: localStorage can throw or silently no-op in private
+  // modes, and if the id can't persist the user needs to know their snippets
+  // won't be findable after a reload.
+  const [persistent, setPersistent] = useState(true);
   useEffect(() => {
-    getProfile().then(setMe).catch(() => {});
+    setPersistent(isDeviceIdPersistent());
   }, []);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
     <>
@@ -161,30 +153,19 @@ function SidebarBody({ onNavigate }) {
         )}
       </div>
 
-      {/* Identity — the card itself is the link to the profile screen. */}
+      {/* Where the data lives — this replaces the old account card. */}
       <div className="shrink-0 border-t-4 border-ink p-3">
-        <Link
-          to="/profile"
-          onClick={onNavigate}
-          className="mb-2 flex items-center gap-3 border-2 border-transparent p-1 hover:border-[color:var(--bh-ink)]"
-        >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-ink bg-bh-blue text-sm font-black text-white">
-            {me?.username?.[0]?.toUpperCase() ?? '?'}
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-black uppercase tracking-tight">
-              {me?.username ?? '—'}
-            </span>
-            <span className="block text-[10px] font-bold uppercase tracking-widest opacity-60">
-              View profile
-            </span>
-          </span>
-        </Link>
-        <button onClick={handleLogout} className="bh-btn bh-btn-outline w-full justify-start">
-          <LogOut className="h-4 w-4" strokeWidth={2.5} />
-          Logout
-        </button>
-        <p className="mt-3 text-[9px] font-bold uppercase leading-relaxed tracking-widest opacity-55">
+        {!persistent && (
+          <p className="mb-2 flex items-start gap-2 border-2 border-ink bg-bh-red px-2 py-1.5 text-[10px] font-bold uppercase leading-relaxed tracking-wide text-white">
+            <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={3} />
+            Storage blocked — snippets won&apos;t survive a reload.
+          </p>
+        )}
+        <p className="mb-3 flex items-start gap-2 text-[10px] font-bold uppercase leading-relaxed tracking-widest opacity-60">
+          <HardDrive className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+          Saved to this browser only. No account — clearing site data erases them.
+        </p>
+        <p className="text-[9px] font-bold uppercase leading-relaxed tracking-widest opacity-55">
           Created by{' '}
           <a
             href="https://zhdipto.github.io/portfolio/"

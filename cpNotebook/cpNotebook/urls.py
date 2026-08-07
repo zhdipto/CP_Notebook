@@ -21,5 +21,9 @@ from django.urls import include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('snippets.urls')),
-    path('auth/', include('accounts.urls')),
+    # Accounts are unwired: the notebook is scoped to a browser's device token,
+    # so there is nothing to register or log in to. accounts/ and the SIMPLE_JWT
+    # config are intentionally left in the tree as reference — re-add the line
+    # below to turn accounts back on.
+    # path('auth/', include('accounts.urls')),
 ]

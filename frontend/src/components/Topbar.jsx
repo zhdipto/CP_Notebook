@@ -8,7 +8,6 @@ function pageTitle(pathname) {
   if (pathname === '/snippets') return 'Snippets';
   if (pathname === '/snippets/new') return 'New Snippet';
   if (pathname.startsWith('/snippets/')) return 'Editor';
-  if (pathname === '/profile') return 'Profile';
   return 'CP Notebook';
 }
 

@@ -14,6 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,11 +144,14 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ],
+    # No accounts: nobody logs in, so there is nothing to authenticate. Identity
+    # comes from the X-Device-Id header instead (see snippets/device.py).
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
+    # Kept as a restrictive default on purpose — the old default was
+    # IsAuthenticated, and dropping to AllowAny would leave any endpoint added
+    # later wide open by accident.
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "snippets.device.HasDeviceId",
     ],
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
@@ -156,16 +160,24 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+    # Every request is anonymous now, so the old "anon: 30/hour" would have
+    # throttled ordinary use almost immediately, and UserRateThrottle can never
+    # fire again. The per-device bucket is the real fair-use limit.
     "DEFAULT_THROTTLE_CLASSES": [
+        "snippets.device.DeviceRateThrottle",
         "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "30/hour",     # unauthenticated clients (by IP)
-        "user": "1000/hour",   # authenticated clients (by user id)
-        "login": "5/min",      # scoped: applied only to the token endpoint
+        "device": "1000/hour",  # per browser token
+        "anon": "3000/hour",    # per-IP backstop: device tokens are trivially rotated,
+                                # but kept generous so shared NAT/office IPs aren't punished
+        "login": "5/min",       # unused while accounts are unwired; kept for accounts/views.py
     },
 }
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # Vite dev server — adjust to your React port
 ]
+# X-Device-Id is a custom header, so it is NOT in django-cors-headers' default
+# allow-list. Without this the browser's CORS preflight rejects every request
+# (curl would still work, which makes it a nasty one to debug).
+CORS_ALLOW_HEADERS = (*default_headers, "x-device-id")
