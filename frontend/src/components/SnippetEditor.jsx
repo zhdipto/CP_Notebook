@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Save, Trash2, Star } from 'lucide-react';
+import CodeEditor from './CodeEditor';
+import { LANGUAGES, isKnownLanguage } from '../constants/languages';
 import {
   getSnippet,
   createSnippet,
@@ -100,6 +102,14 @@ export default function SnippetEditor() {
     }
   };
 
+  // A snippet saved before this dropdown existed could hold a value that isn't
+  // an option. Surfacing it as one keeps the select showing the truth instead
+  // of silently snapping to C++ and rewriting the language on the next save.
+  const languageOptions = useMemo(() => {
+    if (!form.language || isKnownLanguage(form.language)) return LANGUAGES;
+    return [{ value: form.language, label: `${form.language} (unlisted)` }, ...LANGUAGES];
+  }, [form.language]);
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
@@ -164,32 +174,35 @@ export default function SnippetEditor() {
             className="bh-input text-lg font-black uppercase tracking-tight"
           />
         </div>
-        <div className="sm:w-48">
+        <div className="sm:w-52">
           <label htmlFor="snip-language" className="bh-label">Language</label>
-          <input
+          <select
             id="snip-language"
             value={form.language}
             onChange={(e) => setForm({ ...form, language: e.target.value })}
             required
-            className="bh-input"
-          />
+            className="bh-input cursor-pointer"
+          >
+            <option value="" disabled>Select language...</option>
+            {languageOptions.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Code fills the remaining height, notepad-style. */}
+      {/* Code fills the remaining height, editor-style. */}
       <div className="flex min-h-0 flex-1 flex-col">
         <label htmlFor="snip-code" className="sr-only">Code</label>
-        <textarea
+        <CodeEditor
           id="snip-code"
           value={form.code}
-          onChange={(e) => setForm({ ...form, code: e.target.value })}
-          required
-          spellCheck="false"
+          onChange={(code) => setForm({ ...form, code })}
           placeholder="Paste your code here..."
-          className="min-h-0 flex-1 resize-none border-0 bg-canvas px-4 py-3 font-mono text-sm leading-relaxed focus:outline-none"
         />
         <p className="shrink-0 border-t-2 border-ink bg-surface px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest opacity-70">
           {lines} {lines === 1 ? 'line' : 'lines'} · {form.code.length} chars
+          <span className="ml-3 opacity-70">Tab indents · Shift+Tab outdents</span>
         </p>
       </div>
     </form>

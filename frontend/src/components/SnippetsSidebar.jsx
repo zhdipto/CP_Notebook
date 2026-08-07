@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Plus, Search, Star, LogOut, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSnippets, SORT_OPTIONS } from '../context/SnippetsContext';
+import { languageLabel } from '../constants/languages';
 import { getProfile } from '../api/profile';
 import GeoLogo from './GeoLogo';
 
@@ -140,7 +141,7 @@ function SidebarBody({ onNavigate }) {
                   )}
                 </span>
                 <span className="mt-0.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest opacity-70">
-                  <span className="truncate">{s.language}</span>
+                  <span className="truncate">{languageLabel(s.language)}</span>
                   <span>·</span>
                   <span className="shrink-0">{formatDate(s.updated_at)}</span>
                 </span>
