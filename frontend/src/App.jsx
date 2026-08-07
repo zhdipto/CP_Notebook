@@ -4,28 +4,22 @@ import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
-import SnippetList from './components/SnippetList';
-import SnippetForm from './components/SnippetForm';
+import SnippetEditor from './components/SnippetEditor';
+import SnippetsEmpty from './components/SnippetsEmpty';
 import Profile from './components/Profile';
 import Landing from './components/Landing';
 
+// Layout already blocks rendering until `status` resolves, so by the time any
+// route renders it is only ever 'authenticated' or 'anonymous'.
 function RequireAuth({ children }) {
   const { status } = useAuth();
-  if (status === 'checking')
-    return (
-      <p className="border-2 border-ink bg-surface px-4 py-3 text-sm font-bold uppercase tracking-wide shadow-hard-sm">
-        Loading...
-      </p>
-    );
   if (status === 'anonymous') return <Navigate to="/login" replace />;
   return children;
 }
 
-// Public landing page — but a logged-in user hitting "/" should land in
-// their notebook, not on marketing copy.
+// A logged-in user hitting "/" belongs in their notebook, not on marketing copy.
 function RootRoute() {
   const { status } = useAuth();
-  if (status === 'checking') return null;
   if (status === 'authenticated') return <Navigate to="/snippets" replace />;
   return <Landing />;
 }
@@ -36,11 +30,13 @@ function AppRoutes() {
       <Route path="/" element={<RootRoute />} />
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegisterForm />} />
+      {/* The list itself lives in the sidebar (see SnippetsSidebar), so these
+          routes only decide what fills the detail pane. */}
       <Route
         path="/snippets"
         element={
           <RequireAuth>
-            <SnippetList />
+            <SnippetsEmpty />
           </RequireAuth>
         }
       />
@@ -48,15 +44,15 @@ function AppRoutes() {
         path="/snippets/new"
         element={
           <RequireAuth>
-            <SnippetForm />
+            <SnippetEditor />
           </RequireAuth>
         }
       />
       <Route
-        path="/snippets/:id/edit"
+        path="/snippets/:id"
         element={
           <RequireAuth>
-            <SnippetForm />
+            <SnippetEditor />
           </RequireAuth>
         }
       />
@@ -68,7 +64,8 @@ function AppRoutes() {
           </RequireAuth>
         }
       />
-      <Route path="*" element={<Navigate to="/snippets" replace />} />
+      {/* "/" resolves correctly for both auth states, unlike a fixed target. */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

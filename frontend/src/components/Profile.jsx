@@ -41,18 +41,25 @@ export default function Profile() {
     setError(null);
   };
 
+  // main is a pinned flex column now, so this screen owns its own scrolling.
+  const PANE = 'bh-dotgrid min-h-0 flex-1 overflow-y-auto p-4 sm:p-8';
+
   if (loading) {
     return (
-      <p className="border-2 border-ink bg-surface px-4 py-3 text-sm font-bold uppercase tracking-wide shadow-hard-sm">
-        Loading...
-      </p>
+      <div className={PANE}>
+        <p className="border-2 border-ink bg-surface px-4 py-3 text-sm font-bold uppercase tracking-wide shadow-hard-sm">
+          Loading...
+        </p>
+      </div>
     );
   }
   if (!profile) {
     return (
-      <p className="border-2 border-ink bg-bh-red px-4 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-hard-sm">
-        {error || 'Profile unavailable'}
-      </p>
+      <div className={PANE}>
+        <p className="border-2 border-ink bg-bh-red px-4 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-hard-sm">
+          {error || 'Profile unavailable'}
+        </p>
+      </div>
     );
   }
 
@@ -61,8 +68,8 @@ export default function Profile() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <div className="bh-card relative">
+    <div className={PANE}>
+      <div className="bh-card relative max-w-2xl">
         {/* color-blocked header with avatar + handle */}
         <div className="flex items-center gap-4 border-b-4 border-ink bg-bh-blue px-6 py-6">
           <span className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-ink bg-bh-yellow text-black">

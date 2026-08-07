@@ -62,7 +62,12 @@ class CodeSnippetViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def favorites(self, request):
-        snippets = self.get_queryset().filter(favorited_by=request.user)
+        # filter_queryset() so search / language / ordering behave identically
+        # here and on list() — without it the sidebar's search and sort would
+        # silently do nothing whenever the favorites filter is on.
+        snippets = self.filter_queryset(self.get_queryset()).filter(
+            favorited_by=request.user
+        )
         page = self.paginate_queryset(snippets)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

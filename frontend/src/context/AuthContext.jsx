@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import {
   getRefreshToken,
   setAccessToken,
@@ -19,7 +19,17 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [status, setStatus] = useState('checking'); // 'checking' | 'authenticated' | 'anonymous'
 
+  // This bootstrap must happen EXACTLY once. StrictMode double-invokes mount
+  // effects in dev, and because refresh tokens rotate (and the old one is
+  // blacklisted on use), a second call sends an already-blacklisted token,
+  // gets a 401, and wrongly logs the user out on reload. A ref survives the
+  // StrictMode remount, so it reliably collapses the two runs into one.
+  const bootstrapped = useRef(false);
+
   useEffect(() => {
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
+
     const refreshToken = getRefreshToken();
     if (!refreshToken) {
       setStatus('anonymous');
